@@ -10,7 +10,7 @@ A Spring Boot web application that test the following:
 * Compression for `text/plain` type responses.
 * Serving static web content from Spring Boot.
 
-Instalation
+Installation
 ===
 
 Use the usual maven build process (you can skip testing):
@@ -25,4 +25,4 @@ To run the project do:
 java -jar target/random-text-server-1.0-SNAPSHOT.jar
 ```
 
-Then open your browser at http://localhost:9091/
+Then open your browser at [http://localhost:9091/](http://localhost:9091) 

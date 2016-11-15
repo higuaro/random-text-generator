@@ -50,14 +50,14 @@ class RandomTextGeneratorResource {
             return badRequest();
         }
 
-        FileCorpusStream.ExtraSpacesHandling extraSpacesHandling;
+        FileCorpusStream.ExtraSpacesHandling extraSpacesHandlingOption;
         if (ignoreExtraSpaces) {
-            extraSpacesHandling = FileCorpusStream.ExtraSpacesHandling.IGNORE_EXTRA_SPACES;
+            extraSpacesHandlingOption = FileCorpusStream.ExtraSpacesHandling.IGNORE_EXTRA_SPACES;
         } else {
-            extraSpacesHandling = FileCorpusStream.ExtraSpacesHandling.MORE_THAN_TWO_SPACES_IS_A_WORD;
+            extraSpacesHandlingOption = FileCorpusStream.ExtraSpacesHandling.MORE_THAN_TWO_SPACES_IS_A_WORD;
         }
 
-        try (FileCorpusStream fileCorpusStream = new FileCorpusStream(file.getInputStream(), extraSpacesHandling)) {
+        try (FileCorpusStream fileCorpusStream = new FileCorpusStream(file.getInputStream(), extraSpacesHandlingOption)) {
 
             Either<TextFiniteStateMachineError, TextFiniteStateMachine> errorOrStateMachine =
                     textFiniteStateMachineFactory.createTextFiniteStateMachine(fileCorpusStream, PrefixSize.of(prefixSize));
