@@ -41,14 +41,14 @@ public class RandomTextGeneratorResourceTest {
     @DisplayName("Should test the happy path, that is, upload a corpus text file and get random text")
     public void testHappyPath() throws Exception {
         String corpusText = loremIpsum();
-        MockMultipartFile testFile = new MockMultipartFile("file", "filename.txt", "text/plain", corpusText.getBytes());
+        MockMultipartFile testFile = new MockMultipartFile("text-file", "filename.txt", "text/plain", corpusText.getBytes());
 
         MvcResult result = mockMvc
                 .perform(
-                        fileUpload("/v1/random/upload-text-file")
+                        fileUpload("/api/v1/random/generate-from-file")
                                 .file(testFile)
                                 .param("prefix-size", "3")
-                                .param("ignore-extra-spaces", "true")
+                                .param("extra-spaces-as-words", "true")
                                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 )
                 .andExpect(request().asyncStarted())
@@ -67,12 +67,12 @@ public class RandomTextGeneratorResourceTest {
         String corpusText = loremIpsum();
 
         MockMultipartFile wrongFile1 = new MockMultipartFile("WRONG-FILE-NAME", "filename.txt", "text/plain", corpusText.getBytes());
-        MockMultipartFile wrongFile2 = new MockMultipartFile("file", "filename.txt", "text/xml", corpusText.getBytes());
-        MockMultipartFile goodFile = new MockMultipartFile("file", "filename.txt", "text/plain", corpusText.getBytes());
+        MockMultipartFile wrongFile2 = new MockMultipartFile("text-file", "filename.txt", "text/xml", corpusText.getBytes());
+        MockMultipartFile goodFile = new MockMultipartFile("text-file", "filename.txt", "text/plain", corpusText.getBytes());
 
         // Wrong file parameter name
         mockMvc.perform(
-                        fileUpload("/v1/random/upload-text-file")
+                        fileUpload("/api/v1/random/generate-from-file")
                                 .file(wrongFile1)
                                 .param("prefix-size", "2")
                                 .contentType(MediaType.MULTIPART_FORM_DATA)
@@ -82,7 +82,7 @@ public class RandomTextGeneratorResourceTest {
         // Wrong file type
         MvcResult result = mockMvc.
                 perform(
-                        fileUpload("/v1/random/upload-text-file")
+                        fileUpload("/api/v1/random/generate-from-file")
                                 .file(wrongFile2)
                                 .param("prefix-size", "3")
                                 .contentType(MediaType.MULTIPART_FORM_DATA)
@@ -94,7 +94,7 @@ public class RandomTextGeneratorResourceTest {
 
         // Wrong prefix-size
         mockMvc.perform(
-                        fileUpload("/v1/random/upload-text-file")
+                        fileUpload("/api/v1/random/generate-from-file")
                                 .file(goodFile)
                                 .param("prefix-size", "WRONG!!")
                                 .contentType(MediaType.MULTIPART_FORM_DATA)
@@ -103,18 +103,18 @@ public class RandomTextGeneratorResourceTest {
 
         // Missing prefix-size
         mockMvc.perform(
-                        fileUpload("/v1/random/upload-text-file")
+                        fileUpload("/api/v1/random/generate-from-file")
                                 .file(goodFile)
                                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 )
                 .andExpect(status().isBadRequest());
 
-        // Wrong ignore-extra-spaces
+        // Wrong extra-spaces-as-words
         mockMvc.perform(
-                        fileUpload("/v1/random/upload-text-file")
+                        fileUpload("/api/v1/random/generate-from-file")
                                 .file(goodFile)
                                 .param("prefix-size", "4")
-                                .param("ignore-extra-spaces", "WRONG!!")
+                                .param("extra-spaces-as-words", "WRONG!!")
                                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 )
                 .andExpect(status().isBadRequest());

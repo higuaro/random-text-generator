@@ -4,7 +4,6 @@ import com.animallogic.markovchain.MarkovChainRandomTextGenerator;
 import com.animallogic.markovchain.corpus.stream.FileCorpusStream;
 import com.animallogic.markovchain.fsm.TextFiniteStateMachine;
 import com.animallogic.markovchain.fsm.TextFiniteStateMachineFactory;
-import com.animallogic.markovchain.fsm.types.Prefix;
 import com.animallogic.markovchain.fsm.types.PrefixSize;
 import com.animallogic.markovchain.fsm.types.TextFiniteStateMachineError;
 import io.atlassian.fugue.Either;
@@ -21,9 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -38,23 +34,23 @@ class RandomTextGeneratorResource {
     }
 
     @RequestMapping(
-            value = "/v1/random/upload-text-file",
+            value = "api/v1/random/generate-from-file",
             method = RequestMethod.POST
     )
     @ResponseBody
     public DeferredResult<ResponseEntity<?>> uploadTextFile(@RequestParam(value = "prefix-size") int prefixSize,
-                                                            @RequestParam(value = "ignore-extra-spaces", required = false, defaultValue = "true") boolean ignoreExtraSpaces,
-                                                            @RequestParam("file") MultipartFile file) {
+                                                            @RequestParam(value = "extra-spaces-as-words", required = false, defaultValue = "false") boolean treatExtraSpacesAsWords,
+                                                            @RequestParam("text-file") MultipartFile file) {
         if (!file.getContentType().startsWith(MediaType.TEXT_PLAIN_VALUE)) {
             LOGGER.warn("Uploaded file type unsupported: '{}'", file.getContentType());
             return badRequest();
         }
 
         FileCorpusStream.ExtraSpacesHandling extraSpacesHandlingOption;
-        if (ignoreExtraSpaces) {
-            extraSpacesHandlingOption = FileCorpusStream.ExtraSpacesHandling.IGNORE_EXTRA_SPACES;
-        } else {
+        if (treatExtraSpacesAsWords) {
             extraSpacesHandlingOption = FileCorpusStream.ExtraSpacesHandling.MORE_THAN_TWO_SPACES_IS_A_WORD;
+        } else {
+            extraSpacesHandlingOption = FileCorpusStream.ExtraSpacesHandling.IGNORE_EXTRA_SPACES;
         }
 
         try (FileCorpusStream fileCorpusStream = new FileCorpusStream(file.getInputStream(), extraSpacesHandlingOption)) {
@@ -69,6 +65,8 @@ class RandomTextGeneratorResource {
             }
 
             TextFiniteStateMachine finiteStateMachine = errorOrStateMachine.right().get();
+
+            LOGGER.debug("Generating random text promise");
 
             return toDeferredResult(asyncGenerateRandomText(finiteStateMachine).thenApply(ResponseEntity::ok));
         } catch (Exception e) {

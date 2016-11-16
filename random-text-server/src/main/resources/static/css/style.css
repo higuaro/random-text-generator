@@ -10,3 +10,9 @@
 .jumbotron p .btn {
   padding: 0.5em;
 }
+.form-inline > * {
+  margin: 5px 20px;
+}
+.img-responsive {
+  margin: 0 auto;
+}

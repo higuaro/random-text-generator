@@ -53,8 +53,10 @@ public class MarkovChainRandomTextGenerator implements Iterable<String> {
 
             prefixes = textFiniteStateMachine.prefixes();
 
-            int randomStartIndex = rng.nextInt(prefixes.size());
-            currentPrefix = prefixes.get(randomStartIndex);
+            if (prefixes.size() > 0) {
+                int randomStartIndex = rng.nextInt(prefixes.size());
+                currentPrefix = prefixes.get(randomStartIndex);
+            }
         }
 
         @Override

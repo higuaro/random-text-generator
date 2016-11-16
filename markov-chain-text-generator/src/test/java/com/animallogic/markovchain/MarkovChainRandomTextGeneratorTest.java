@@ -98,4 +98,30 @@ public class MarkovChainRandomTextGeneratorTest {
 
         assertNotEquals(words.toString(), randomText);
     }
+
+    @Test
+    @Tag("integration")
+    @DisplayName("Should generate empty text when prefix size is great than total number of words in text")
+    void prefixTooLongForCorpus() {
+        ImmutableList<String> words = ImmutableList.of(
+                "A", "is", "father", "of", "B.\n",
+                "B", "is", "brother", "of", "C.\n",
+                "C", "is", "father", "of", "K.\n"
+        );
+
+        // Prepare Corpus
+        CorpusStream corpusStream = new InMemoryCorpusStream(words);
+
+        Either<TextFiniteStateMachineError, TextFiniteStateMachine> result =
+                new TextFiniteStateMachineFactory().createTextFiniteStateMachine(corpusStream, PrefixSize.of(100));
+        assertThat(result.isRight(), is(true));
+        TextFiniteStateMachine textFiniteStateMachine = result.right().get();
+
+        final int SEED = 0x12454697;
+        MarkovChainRandomTextGenerator randomTextGenerator = new MarkovChainRandomTextGenerator(textFiniteStateMachine, new Random(SEED));
+
+        String randomText = randomTextGenerator.stream().map(s -> s.endsWith("\n") ? s : s + " ").collect(Collectors.joining());
+
+        assertThat(randomText, is(""));
+    }
 }

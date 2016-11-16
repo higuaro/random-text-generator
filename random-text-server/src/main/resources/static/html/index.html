@@ -4,35 +4,130 @@
     <title>Animal Logic - Markov Chain random text generator</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="../img/favicon.ico" type="image/x-icon" rel="shortcut icon">
-    <link href="../img/favicon.ico" type="image/x-icon" rel="icon">
-    <link href="../css/style.css" type="text/css" rel="stylesheet">
+    <link rel="shortcut icon" href="../img/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="../img/favicon.ico" type="image/x-icon">
+
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.4.1/css/bootstrap-slider.css">
+    <link rel="stylesheet" href="../css/fileinput.min.css" type="text/css">
+    <link rel="stylesheet" href="../css/style.css" type="text/css">
+
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.4.1/bootstrap-slider.min.js"></script>
+
+    <script src="../js/plugins/canvas-to-blob.min.js"></script>
+    <script src="../js/plugins/sortable.min.js"></script>
+    <script src="../js/plugins/purify.min.js"></script>
+    <script src="../js/fileinput.min.js"></script>
 </head>
 <body>
+
+<script>
+    $( document ).ready(function () {
+        $('#text-file').fileinput({
+            showPreview : false,
+            allowedFileTypes : ['text', 'html'],
+            msgInvalidFileType : 'Invalid file type, only text files are allowed',
+            maxFileSize: 2 * 1024,
+            uploadLabel : 'Generate',
+            uploadIcon : '<i class="glyphicon glyphicon-cog"></i> ',
+            showRemove : false,
+            uploadClass: 'btn btn-success',
+            uploadUrl : '/api/v1/random/generate-from-file',
+            uploadExtraData : function () {
+                return {
+                    'extra-spaces-as-words' : $('#extra-spaces-as-words').val(),
+                    'prefix-size' : $('#prefix-size').slider('getValue')
+                }
+            }
+        }).on('change', function(event) {
+            if (!FileReader) {
+                $('#uploaded-file-content').html('(File preview not available - your browser does not support this feature)');
+                return;
+            }
+            var file = event.target.files && event.target.files[0];
+            if (file) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    $('#original-file-content').text(e.target.result);
+                };
+                reader.readAsText(file);
+                $('.btn.btn-success.fileinput-upload.fileinput-upload-button').show();
+            }
+        }).on('fileuploaderror', function(event, data, msg) {
+            if (data.jqXHR.status == 200) {
+                $('#server-generated-random-text').text(data.jqXHR.responseText);
+                $('#text-file').fileinput('reset');
+                $('.btn.btn-success.fileinput-upload.fileinput-upload-button').hide();
+                setTimeout(function () {
+                    $('.file-input').removeClass('has-error');
+                }, 0);
+            }
+        });
+    });
+</script>
 
 <div class="container">
     <div class="jumbotron">
         <div class="row">
-            <div class="col-md-4">
+            <div class="col-md-2">
                 <img src="../img/logo.png" class="img-responsive">
             </div>
-            <div class="col-md-8"><h1><b>My WebSite Jumbotron!</b></h1>
-                <p>This page would be great if the jumbotron would be higher.</p>
+            <div class="col-md-10">
+                <h1>Random Text Generator</h1>
+                <p>Generates <mark>random</mark> text from a text file using Markov Chains.</p>
             </div>
         </div>
     </div>
     <div class="row">
-        Some text
-    </div>
-    <div class="row">
-        <div class="col-sm-4">
-            Some text
+        <div class="col-sm-12">
+            <form class="form-horizontal">
+                <div class="form-group">
+                    <input id="text-file" name="text-file" type="file" />
+                </div>
+                <div class="form-group">
+                    <div style="height: 0.5em"></div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label" for="prefix-size">Prefix size:</label>
+                    <input id="prefix-size"
+                            type="text"
+                            name="prefix-size"
+                            data-provide="slider"
+                            data-slider-min="2"
+                            data-slider-max="20"
+                            data-slider-step="1"
+                            data-slider-value="3"
+                            data-slider-tooltip="always"/>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-6">
+                        <div class="checkbox">
+                            <label><input id="extra-spaces-as-words" name="extra-spaces-as-words" type="checkbox" /> Treat trailing spaces as words</label>
+                        </div>
+                    </div>
+                </div>
+            </form>
         </div>
-        <div class="col-sm-4">
-            ...
+    </div>
+
+    <hr/>
+
+    <div class="row">
+        <div class="col-sm-6">
+            <p>
+                <label for="original-file-content">Original File Content:</label>
+            </p>
+            <pre class="pre-scrollable" id="original-file-content">
+            </pre>
+        </div>
+        <div class="col-sm-6">
+            <p>
+                <label for="server-generated-random-text">Generated Text:</label>
+            </p>
+            <pre class="pre-scrollable" id="server-generated-random-text">
+            </pre>
         </div>
     </div>
 </div>

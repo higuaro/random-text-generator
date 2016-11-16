@@ -8,6 +8,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -32,7 +33,11 @@ public class TextFiniteStateMachine {
     }
 
     public List<Suffix> sufficesFor(Prefix prefix) {
-        return new ArrayList<>(finiteStateMachine.get(prefix));
+        if (prefix == null) {
+            return Collections.emptyList();
+        } else {
+            return new ArrayList<>(finiteStateMachine.get(prefix));
+        }
     }
 
     public int statesCount() {
