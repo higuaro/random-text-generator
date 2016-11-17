@@ -25,10 +25,19 @@
 
 <script>
     $( document ).ready(function () {
+        function resetFileInput() {
+            $('.btn.btn-success.fileinput-upload.fileinput-upload-button').hide();
+            $('#text-file').fileinput('reset');
+            setTimeout(function () {
+                $('.file-input').removeClass('has-error');
+            }, 0);
+        }
+
         $('#text-file').fileinput({
             showPreview : false,
             allowedFileTypes : ['text', 'html'],
             msgInvalidFileType : 'Invalid file type, only text files are allowed',
+            allowedFileExtensions : ["txt"],
             maxFileSize: 2 * 1024,
             uploadLabel : 'Generate',
             uploadIcon : '<i class="glyphicon glyphicon-cog"></i> ',
@@ -48,22 +57,22 @@
             }
             var file = event.target.files && event.target.files[0];
             if (file) {
-                var reader = new FileReader();
-                reader.onload = function (e) {
-                    $('#original-file-content').text(e.target.result);
-                };
-                reader.readAsText(file);
-                $('.btn.btn-success.fileinput-upload.fileinput-upload-button').show();
+                if (file.type === "text/plain") {
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                        $('#original-file-content').text(e.target.result);
+                    };
+                    reader.readAsText(file);
+                    $('.btn.btn-success.fileinput-upload.fileinput-upload-button').show();
+                } else {
+                    alert("Invalid file type, only text files are supported");
+                }
             }
         }).on('fileuploaderror', function(event, data, msg) {
             if (data.jqXHR.status == 200) {
                 $('#server-generated-random-text').text(data.jqXHR.responseText);
-                $('#text-file').fileinput('reset');
-                $('.btn.btn-success.fileinput-upload.fileinput-upload-button').hide();
-                setTimeout(function () {
-                    $('.file-input').removeClass('has-error');
-                }, 0);
             }
+            resetFileInput();
         });
     });
 </script>
