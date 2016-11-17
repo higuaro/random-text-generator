@@ -45,7 +45,7 @@ public class FileCorpusStreamTest {
 
         FileCorpusStream fileCorpusStream = createStreamWithLines(line1, line2);
 
-        List<String> words = createWordListFromLines(line1, line2);
+        List<String> words = ImmutableList.of("This", "is", "a", "test", "line\n", "and", "this", "is", "another", "line.\n");
         int totalWords = words.size();
 
         AtomicInteger counter = new AtomicInteger(0);
@@ -65,7 +65,7 @@ public class FileCorpusStreamTest {
         String line2 = "4";
         FileCorpusStream fileCorpusStream = createStreamWithLines(line1, line2);
 
-        List<String> words = createWordListFromLines(line1, line2)
+        List<String> words = ImmutableList.of("1", "2", "3\n", "4\n")
                 .stream()
                 .filter(word -> !word.isEmpty())
                 .collect(Collectors.toList());
@@ -101,26 +101,6 @@ public class FileCorpusStreamTest {
 
         assertThat(fileCorpusStream.nextWord().isPresent(), is(false));
         assertThat(fileCorpusStream.consumed(), is(true));
-    }
-
-    private List<String> createWordListFromLines(String firstLine, String... lines) {
-
-        ImmutableList.Builder<String> builder = ImmutableList.<String>builder()
-                .addAll(
-                        ImmutableList.copyOf(
-                                (firstLine + "\n").split(" ")
-                        )
-                );
-
-        Stream.of(lines).forEach(
-                line -> builder.addAll(
-                        ImmutableList.copyOf(
-                                (line + "\n").split(" ")
-                        )
-                )
-        );
-
-        return builder.build();
     }
 
     private FileCorpusStream createStreamWithLines(String line1, String... line2) throws IOException {
