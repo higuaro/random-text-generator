@@ -46,7 +46,7 @@
             uploadUrl : '/api/v1/random/generate-from-file',
             uploadExtraData : function () {
                 return {
-                    'extra-spaces-as-words' : $('#extra-spaces-as-words').val(),
+                    'extra-spaces-as-words' : $('#extra-spaces-as-words:checked').val() === "on",
                     'prefix-size' : $('#prefix-size').slider('getValue')
                 }
             }
