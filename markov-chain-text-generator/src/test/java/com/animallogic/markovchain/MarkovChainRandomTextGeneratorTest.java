@@ -62,13 +62,13 @@ public class MarkovChainRandomTextGeneratorTest {
         Iterator<String> iterator = markovChainRandomTextGenerator.iterator();
 
         assertThat(iterator.hasNext(), is(true));
-        assertThat(iterator.next(), is("test.\n"));
+        assertThat(iterator.next(), is("test.\n With"));
         assertThat(iterator.hasNext(), is(true));
-        assertThat(iterator.next(), is("With "));
+        assertThat(iterator.next(), is("duplicated"));
         assertThat(iterator.hasNext(), is(true));
-        assertThat(iterator.next(), is("no "));
+        assertThat(iterator.next(), is("words."));
         assertThat(iterator.hasNext(), is(true));
-        assertThat(iterator.next(), is("duplicated "));
+        assertThat(iterator.next(), is(""));
         assertThat(iterator.hasNext(), is(false));
     }
 

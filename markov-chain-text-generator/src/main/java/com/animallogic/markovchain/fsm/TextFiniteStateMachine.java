@@ -47,4 +47,8 @@ public class TextFiniteStateMachine {
     public List<Prefix> prefixes() {
         return new ArrayList<>(finiteStateMachine.keySet());
     }
+
+    public PrefixSize getFixedPrefixSize() {
+        return fixedPrefixSize;
+    }
 }

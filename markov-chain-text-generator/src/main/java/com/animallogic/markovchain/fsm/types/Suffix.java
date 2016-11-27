@@ -33,4 +33,8 @@ public class Suffix {
     public static Suffix of(String word) {
         return new Suffix(word);
     }
+
+    public boolean isEof() {
+        return value.equals(EOF.value);
+    }
 }

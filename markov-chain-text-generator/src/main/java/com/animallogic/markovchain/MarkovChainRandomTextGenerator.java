@@ -39,17 +39,17 @@ public class MarkovChainRandomTextGenerator implements Iterable<String> {
         return StreamSupport.stream(splitIterator, false);
     }
 
-    class RandomTextIterator implements Iterator<String> {
+    private class RandomTextIterator implements Iterator<String> {
+        private boolean firstPrefix;
         private TextFiniteStateMachine textFiniteStateMachine;
         private List<Prefix> prefixes;
-
         private Random rng;
-
         private Prefix currentPrefix;
 
         RandomTextIterator(TextFiniteStateMachine textFiniteStateMachine, Random rng) {
             this.textFiniteStateMachine = textFiniteStateMachine;
             this.rng = rng;
+            this.firstPrefix = true;
 
             prefixes = textFiniteStateMachine.prefixes();
 
@@ -74,10 +74,19 @@ public class MarkovChainRandomTextGenerator implements Iterable<String> {
             Suffix randomSuffix = suffices.get(rng.nextInt(suffices.size()));
 
             Prefix previousPrefix = currentPrefix;
+
             currentPrefix = rotatePrefixToLeft(currentPrefix, randomSuffix);
 
-            List<String> words = previousPrefix.words();
-            return words.subList(0, words.size() - 1).stream().map(s -> s.endsWith("\n") ? s : s + " ").collect(Collectors.joining());
+            if (firstPrefix) {
+                firstPrefix = false;
+                return previousPrefix.words().stream().collect(Collectors.joining(" "));
+            } else {
+                if (randomSuffix.isEof()) {
+                    return "";
+                } else {
+                    return randomSuffix.value();
+                }
+            }
         }
 
         Prefix rotatePrefixToLeft(Prefix prefix, Suffix suffix) {
